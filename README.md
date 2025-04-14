@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Prometheus with Grafana: Metrics Collection and Monitoring
 
 This project sets up **Prometheus**, **Node Exporter**, and **Grafana** using **Docker Compose** to monitor system metrics.
@@ -18,3 +19,6 @@ Inspired by:
 ```bash
 docker-compose up
 ```
+=======
+# devops_task
+>>>>>>> dee9ac6894684ca6899a69ab91fbcd686b59fe37
