@@ -312,7 +312,7 @@ Stay Tuned!
 
 
 
-## 🚀 How to Run the Project (Windows Friendly ✅)
+##  How to Run the Project 
 
 1. **Install Docker Desktop on Windows**  
    Download from [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
