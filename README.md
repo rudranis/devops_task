@@ -1,3 +1,7 @@
+![image](https://github.com/user-attachments/assets/77fb75d1-40f4-41fc-8ce4-852043bb0cae)
+
+
+
 <<<<<<< HEAD
 # Prometheus with Grafana: Metrics Collection and Monitoring
 
