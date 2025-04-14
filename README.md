@@ -22,3 +22,17 @@ docker-compose up
 =======
 # devops_task
 >>>>>>> dee9ac6894684ca6899a69ab91fbcd686b59fe37
+
+
+
+
+## 🚀 How to Run the Project (Windows Friendly ✅)
+
+1. **Install Docker Desktop on Windows**  
+   Download from [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+
+2. **Clone this repo**
+
+```bash
+git clone https://github.com/rudranis/devops_task.git
+cd devops_task
