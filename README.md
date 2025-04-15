@@ -1,99 +1,91 @@
-Introduction to Prometheus & Monitoring Systems
-Why Monitoring Matters
-In scalable software systems, monitoring and metrics collection are essential. They help you track performance, detect bottlenecks, and trigger alerts when something goes wrong.
+Project Title: Introducing Prometheus with Grafana: Metrics Collection and Monitoring
 
-Discovering Prometheus
-While working with Kubernetes and Docker, I discovered Prometheus—an open-source monitoring tool that changed my perspective on collecting metrics. Unlike cloud-native tools like CloudWatch or the ELK stack, Prometheus offers a highly efficient, modular, and open-source alternative.
+ Introduction to Prometheus & Monitoring Systems
+Why Monitoring Matters
+In scalable systems, monitoring helps you:
+
+Track performance
+
+Detect issues early
+
+Trigger alerts when problems occur
 
 🔍 What is Prometheus?
-Prometheus was created at SoundCloud by ex-Googlers, inspired by Google’s Borgmon (the internal monitoring system used with their container orchestrator, Borg). In short:
+Open-source monitoring tool inspired by Google’s Borgmon
 
-Prometheus = Borgmon for mere mortals
+Adopted by CNCF (like Kubernetes)
 
-It was later adopted by the Cloud Native Computing Foundation right after Kubernetes and is now the default monitoring tool for Kubernetes environments.
+Pull-based model: Scrapes metrics from endpoints
 
-It’s a pull-based system that scrapes data from endpoints at regular intervals.
+Uses PromQL for querying
 
-It uses PromQL, a powerful query language.
+Stores data in a Time Series Database (TSDB)
 
-Think of it as a time-series database (TSDB) at its core.
+📊 Time Series Database (TSDB)
+Stores data with timestamps — useful for:
 
-📊 What is a Time Series Database?
-TSDB stores data points associated with timestamps. Common use cases include:
-
-Server & app metrics
+App/server metrics
 
 IoT/sensor data
 
-Stock market activity
+Market activity
+Prometheus uses XOR compression for efficient time-based analysis.
 
-Prometheus uses a 64-bit floating point XOR compression algorithm, optimized for time-based analysis, aggregation, and downsampling.
+📥 Push vs Pull Metrics
 
-📥 Push vs Pull for Metrics
-Push: Data is sent by the app (e.g., logs or events).
-
-✅ Decentralized
-
-❌ Risk of losing data if push agent fails
-
-Pull: Data is pulled from endpoints.
-
-✅ Centralized, reliable, scalable
-
-✅ Ideal for short-lived containers and dynamic environments
-
-Prometheus uses the Pull model, pulling metrics from configured targets.
+Model	Pros	Cons
+Push	Decentralized	Possible data loss
+Pull	Centralized, scalable	Requires open endpoints
+Prometheus uses Pull — ideal for Kubernetes & dynamic setups.
 
 🏗️ Prometheus Architecture
-Key components of the Prometheus ecosystem:
-
-Prometheus Server – Core engine, stores and queries time-series data
+Prometheus Server – Core engine
 
 Client Libraries – Instrument your apps
 
+Exporters – Get metrics from services like MySQL, HAProxy
+
 Push Gateway – For short-lived jobs
 
-Exporters – For metrics from systems like HAProxy, MySQL, etc.
+AlertManager – Sends alerts (Slack, email)
 
-AlertManager – Sends alerts to Slack, email, etc.
+Grafana – Dashboards and visualization
 
-Grafana – For beautiful dashboards
+✅ When to Use Prometheus
+Use it when:
 
-✅ When to Use Prometheus?
-Use Prometheus when:
+You're working with microservices or Kubernetes
 
-You need reliable monitoring
+You need reliable, time-series metrics
 
-You work with microservices or Kubernetes
+Avoid if:
 
-You want multi-dimensional time-series metrics
+You need 100% accurate billing
 
-Avoid it for:
+Logging high-frequency events
 
-Billing systems requiring 100% accuracy
-
-High-frequency event logging
-
- Prometheus Setup with Docker (Demo)
-Here’s a simplified Docker setup:
-
+🐳 Docker Setup (Minimal)
 dockerfile
+Copy
+Edit
+# Base image
 FROM ubuntu:bionic
-MAINTAINER Arindam Paul, arindampaul1989@gmail.com
 
+# Install required tools
 RUN apt-get update && \
-    apt-get install -y wget screen vim
+    apt-get install -y wget
 
+# Set working directory
 WORKDIR /root
 
-# Download binaries
+# Download Prometheus ecosystem tools
 RUN wget -nv https://github.com/prometheus/prometheus/releases/download/v2.18.0/prometheus-2.18.0.linux-amd64.tar.gz && \
     wget -nv https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz && \
     wget -nv https://github.com/prometheus/alertmanager/releases/download/v0.20.0/alertmanager-0.20.0.linux-amd64.tar.gz && \
     wget -nv https://dl.grafana.com/oss/release/grafana-6.7.3.linux-amd64.tar.gz
 
+# Expose ports
 EXPOSE 9100 9090 3000
-
 
 Now, we will create a simple docker compose file to prepare our docker image to run, only thing it does is, it gives us a handy name to work with which will expose multiple ports to the host for us. With this we can access them from host machine. I generally prefer docker compose a lot than writing long docker run commands with options.
 ![image](https://github.com/user-attachments/assets/6b00d4bc-daaf-47d3-a48d-4649fbeef3eb)
