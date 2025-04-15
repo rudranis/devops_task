@@ -1,119 +1,98 @@
-                          Introducing Prometheus with Grafana: Metrics Collection and Monitoring
-                          
-Introduction
-Metrics collection and Monitoring system is very important for a healthy and scalable software system. Its your eyes and ears for what is happening inside the system. For an enterprise application this is an absolute requirement not only to know how well the system is performing but also, use this data for all sorts of analysis to measure latencies, find potential bottlenecks and alarming when something bad happens.
+Introduction to Prometheus & Monitoring Systems
+Why Monitoring Matters
+In scalable software systems, monitoring and metrics collection are essential. They help you track performance, detect bottlenecks, and trigger alerts when something goes wrong.
 
-I came across Prometheus while working on Kubernetes and Docker (before that I had experience with ELK kind of stack or CloudWatch kind of cloud based services). Once, I got introduced to Prometheus and how it works, for me the question of how to collect metrics properly shifted forever. And it happened for good, which in this post we will explore. I have tried my best to keep things simple, to the point and understandable without any pre-requisite. At the same time, this also means, I would cover mostly basics to get you up and running as fast as possible without going into advanced features. It will also feature a full demo of a Prometheus server setup in a Docker environment with some metrics visualised in Grafana.
+Discovering Prometheus
+While working with Kubernetes and Docker, I discovered Prometheus—an open-source monitoring tool that changed my perspective on collecting metrics. Unlike cloud-native tools like CloudWatch or the ELK stack, Prometheus offers a highly efficient, modular, and open-source alternative.
 
-“Once I got introduced to Prometheus and how it works, for me the question of how to collect metrics properly shifted forever.”
+🔍 What is Prometheus?
+Prometheus was created at SoundCloud by ex-Googlers, inspired by Google’s Borgmon (the internal monitoring system used with their container orchestrator, Borg). In short:
 
-What is Prometheus
-The story of Prometheus is very intriguing, so let me take a min to tell you how it came about. It was originally developed at SoundCloud, by ex-Googlers. But its story goes beyond that, Google had a dynamic container based system for all their systems in production called Borg and was using an in house monitoring solution called Borgmon for the same. But in SoundCloud there were no alternative for the same, other solutions at the time doesn’t fit the need of the dynamic environments (similar to Kubernetes). So, the inception of Prometheus began building an open source solution on the same key pricinples for the similar kind of environment. I think the Author’s sentiment captures it the best,
+Prometheus = Borgmon for mere mortals
 
-“They are twins separated at birth.” Kubernetes directly builds on Google’s decade-long experience with their own cluster scheduling system, Borg. Prometheus’s bonds to Google are way looser but it draws a lot of inspiration from Borgmon, the internal monitoring system Google came up with at about the same time as Borg. In a very sloppy comparison, you could say that Kubernetes is Borg for mere mortals, while Prometheus is Borgmon for mere mortals. Both are “second systems” trying to iterate on the good parts while avoiding the mistakes and dead ends of their ancestors.
+It was later adopted by the Cloud Native Computing Foundation right after Kubernetes and is now the default monitoring tool for Kubernetes environments.
 
-https://youtu.be/4Pr-z8-r1eo
-So what is it basically, Prometheus is an open-source systems monitoring and alerting toolkit (Yes its very moduler!). It collects metrics from configured targets at given intervals, evaluates rule expressions, displays the results, and can trigger alerts if some condition is observed to be true.
+It’s a pull-based system that scrapes data from endpoints at regular intervals.
 
-It got adopted by Cloud Native Computing Foundation as the second project to be adopted right after Kubernetes itself. Today, Prometheus is the de facto monitoring tool used alongside Kubernetes everywhere.
+It uses PromQL, a powerful query language.
 
-But, I would like to think about it as a time series database with a powerful query language. At least the main Prometheus server is just that. Well that was a mouthful, so let me break it down bit by bit, and also for this post, let’s consider Prometheus to be a DB rather than a metrics collection/alarming system. You will know why it makes more sense in short while. But first, let’s learn about time series DB, what are they good for and how do they help.
+Think of it as a time-series database (TSDB) at its core.
 
-Let’s talk about time series Databases
-A time series database (TSDB) is a database optimized for time-stamped or time series data. Time series data are simply measurements or events that are tracked, monitored, downsampled, and aggregated over time. This could be server metrics, application performance monitoring, network data, sensor data, events, clicks, trades in a market, and many other types of analytics data. (Internally it uses 64bit floating point XOR based compression algorithm that Prometheus uses under the hood)
+📊 What is a Time Series Database?
+TSDB stores data points associated with timestamps. Common use cases include:
 
-A time series database is built specifically for handling metrics and events or measurements that are time-stamped. A TSDB is optimized for measuring change over time. Properties that make time series data very different than other data workloads are data lifecycle management, summarization, and large range scans of many records.
+Server & app metrics
 
-If you look up most popular TSDBs right now, you will find, Prometheus to be in one of the top ones.
+IoT/sensor data
 
-Why is a time series database important now?
-Time series databases are not new, but the first-generation time series databases were primarily focused on looking at financial data, the volatility of stock trading, and systems built to solve trading. But its scope is no longer limited to just that. The fundamental conditions of computing have changed dramatically over the last decade. Everything has become compartmentalized. Monolithic mainframes have vanished, replaced by serverless servers, micro serverices, and containers. With these kind of architecture, finding the sequence of things happening in real time over many many systems running in parallel requires a monitoring system build on top of solid TSDB foundation.
+Stock market activity
 
-Push vs Pull Model for Metrics Collection
-Metrics are one of the “go-to” standards for any monitoring system of which there are a variety of different types. At its core, a metric is essentially a measurement of a property of a portion of an application or system. Metrics make an observation by keeping track of the state of an object. These observations are some value or a series of related values combined with a timestamp that describes the observations, the output of which is commonly called time-series data.
+Prometheus uses a 64-bit floating point XOR compression algorithm, optimized for time-based analysis, aggregation, and downsampling.
 
-The canonical example for metrics gathering is website hits, where we regularly collect various data points like the number of times someone visits a particular page and the location or source of the visitor for a given site. Examples of different types of metrics are as follows:
+📥 Push vs Pull for Metrics
+Push: Data is sent by the app (e.g., logs or events).
 
-Counters
-Timers
-Events
-Logs
-A single metric in and of itself is often not that useful, but when visualized over time especially in conjunction with some mathematical transformation, metrics can give great insight into a system and its behaviour. Following are some common transformations for metrics:
+✅ Decentralized
 
-Sum
-Average
-Median
-Percentiles
-Standard deviation
-Rates of change
-In Push-based monitoring the application being monitoring becomes an emitter of data “pushing” metrics and events on some time interval or a constraint violation. This approach typically favors a decentralized structure and has the advantage of not requiring the monitoring system to “pre-register” the monitored component as the emitter pushes data to the configured destination upon start. But it suffers from several drawbacks and loses its clear visibility if a push based agent dies or doesn’t respond over time. Also, the amount of data pushed needs be optimized in this approach(because it is a part of the application and application throughput in some sense.)
+❌ Risk of losing data if push agent fails
 
-Pull/polling based solutions works differently in that they pull data which are exposed via different services and endpoints. are quite common in monitoring and historically favors a centralized organizational structure, although this is not a requirement. Primarily, in pull-based monitoring, the monitoring system asks or queries a monitored component, for example, pinging a host or to see if a website is up.
+Pull: Data is pulled from endpoints.
 
-Prometheus is a pull based system which pulls data from configured sources at regular intervals.
+✅ Centralized, reliable, scalable
 
-Architecture
-Most Prometheus components are written in Go, making them easy to build and deploy as static binaries for all types of target/systems. Prometheus scrapes metrics from instrumented jobs, either directly or via an intermediary push gateway for short-lived jobs. It stores all scraped samples locally and runs rules over this data to either aggregate and record new time series from existing data or generate alerts
+✅ Ideal for short-lived containers and dynamic environments
 
-Prometheus’s main features are:
+Prometheus uses the Pull model, pulling metrics from configured targets.
 
-a multi-dimensional data model with time series data identified by metric name and key/value pairs
-PromQL, a flexible query language to leverage this dimensionality
-Time series collection happens via a pull model over HTTP
-pushing time series is supported via an intermediary gateway
-targets are discovered via service discovery or static configuration
-multiple modes of graphing and dashboarding support
-The Prometheus ecosystem consists of multiple components, many of which are optional:
+🏗️ Prometheus Architecture
+Key components of the Prometheus ecosystem:
 
-the main Prometheus server which scrapes and stores time series data
-client libraries for instrumenting application code
-a push gateway for supporting short-lived jobs
-special-purpose exporters for services like HAProxy, StatsD, Graphite, etc. which sends metrics from an existing system or software.
-an alertmanager to handle alerts
+Prometheus Server – Core engine, stores and queries time-series data
 
-![image](https://github.com/user-attachments/assets/77fb75d1-40f4-41fc-8ce4-852043bb0cae)
+Client Libraries – Instrument your apps
 
-When does it fit?
-Prometheus works well for recording any purely numeric time series. It fits both machine-centric monitoring as well as monitoring of highly dynamic service-oriented architectures like Kubernetes. In a world of microservices, its support for multi-dimensional data collection and querying is a particular strength.
+Push Gateway – For short-lived jobs
 
-Prometheus is designed for reliability, to be the system you go to during an outage to allow you to quickly diagnose problems. Each Prometheus server is standalone, not depending on network storage or other remote services. You can rely on it when other parts of your infrastructure are broken, and you do not need to setup extensive infrastructure to use it.
+Exporters – For metrics from systems like HAProxy, MySQL, etc.
 
-When does it not fit?
-Prometheus values reliability. You can always view what statistics are available about your system, even under failure conditions. If you need 100% accuracy, such as for per-request billing, Prometheus is not a good choice as the collected data will likely not be detailed and complete enough. In such a case you would be best off using some other system to collect and analyze the data for billing, and Prometheus for the rest of your monitoring.
+AlertManager – Sends alerts to Slack, email, etc.
 
-Prometheus Setup
-For the demonstration purposes we will use Docker to make things really easy and reproducible anywhere. Here is a simple Dockerfile which sets up the stage for us.
+Grafana – For beautiful dashboards
 
-It starts off with Ubuntu 18.04 (bionic) official image
-Installs some of the tools we will be using like wget , screen and vim
-It downloads the latest binary releases for Prometheus, node_exporter and alertmanager (As we said before, Prometheus is highly modular)
-It also downloads Grafana which will be used later for Visualization
-Exposes the default ports from the respective services
+✅ When to Use Prometheus?
+Use Prometheus when:
 
+You need reliable monitoring
+
+You work with microservices or Kubernetes
+
+You want multi-dimensional time-series metrics
+
+Avoid it for:
+
+Billing systems requiring 100% accuracy
+
+High-frequency event logging
+
+ Prometheus Setup with Docker (Demo)
+Here’s a simplified Docker setup:
+
+dockerfile
 FROM ubuntu:bionic
 MAINTAINER Arindam Paul, arindampaul1989@gmail.com
 
-RUN  apt-get update \
-  && apt-get install -y wget \
-  && apt-get install -y screen \
-  && apt-get install -y vim
+RUN apt-get update && \
+    apt-get install -y wget screen vim
 
 WORKDIR /root
-RUN wget -nv https://github.com/prometheus/prometheus/releases/download/v2.18.0/prometheus-2.18.0.linux-amd64.tar.gz
-RUN wget -nv https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz
-RUN wget -nv https://github.com/prometheus/alertmanager/releases/download/v0.20.0/alertmanager-0.20.0.linux-amd64.tar.gz
-RUN wget -nv https://dl.grafana.com/oss/release/grafana-6.7.3.linux-amd64.tar.gz
 
-# node_exporter
-EXPOSE 9100
+# Download binaries
+RUN wget -nv https://github.com/prometheus/prometheus/releases/download/v2.18.0/prometheus-2.18.0.linux-amd64.tar.gz && \
+    wget -nv https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz && \
+    wget -nv https://github.com/prometheus/alertmanager/releases/download/v0.20.0/alertmanager-0.20.0.linux-amd64.tar.gz && \
+    wget -nv https://dl.grafana.com/oss/release/grafana-6.7.3.linux-amd64.tar.gz
 
-# prometheus
-EXPOSE 9090
-
-# grafana
-EXPOSE 3000
-
-# alertmanage
+EXPOSE 9100 9090 3000
 
 
 Now, we will create a simple docker compose file to prepare our docker image to run, only thing it does is, it gives us a handy name to work with which will expose multiple ports to the host for us. With this we can access them from host machine. I generally prefer docker compose a lot than writing long docker run commands with options.
