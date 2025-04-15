@@ -1,4 +1,4 @@
-Project Title: Introducing Prometheus with Grafana: Metrics Collection and Monitoring
+𝐏𝐫𝐨𝐣𝐞𝐜𝐭 𝐓𝐢𝐭𝐥𝐞: 𝐈𝐧𝐭𝐫𝐨𝐝𝐮𝐜𝐢𝐧𝐠 𝐏𝐫𝐨𝐦𝐞𝐭𝐡𝐞𝐮𝐬 𝐰𝐢𝐭𝐡 𝐆𝐫𝐚𝐟𝐚𝐧𝐚: 𝐌𝐞𝐭𝐫𝐢𝐜𝐬 𝐂𝐨𝐥𝐥𝐞𝐜𝐭𝐢𝐨𝐧 𝐚𝐧𝐝 𝐌𝐨𝐧𝐢𝐭𝐨𝐫𝐢𝐧𝐠
 
  Introduction to Prometheus & Monitoring Systems
 Why Monitoring Matters
