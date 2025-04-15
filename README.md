@@ -6,40 +6,50 @@ Grafana: For visualizing metrics from Prometheus.
 Node Exporter (or any other exporters): To collect system metrics.
 
 Step-by-Step Project Setup
+
 1️⃣ Install Prometheus
 Option 1: Manual Install
 Download Prometheus
 Extract and run:
 ./prometheus --config.file=prometheus.yml
+
 Option 2: Docker
 docker run -p 9090:9090 prom/prometheus
 Install Node Exporter
 To collect system metrics:
 docker run -d -p 9100:9100 prom/node-exporter
+
 Or manually:
 ./node_exporter
+
 Configure Prometheus
 In prometheus.yml, add the Node Exporter job:
 scrape_configs:
   - job_name: 'node_exporter'
     static_configs:
       - targets: ['localhost:9100']
+
 Then restart Prometheus.
 Install Grafana
 Option 1: Manual Install
 Download Grafana
 Start Grafana: ./bin/grafana-server
+
 Option 2: Docker
 docker run -d -p 3000:3000 grafana/grafana
 Connect Prometheus to Grafana
+
 Login to Grafana (localhost:3000, default login: admin/admin)
 Go to Settings → Data Sources → Add data source
+
 Select Prometheus
 Set URL: http://localhost:9090
 Click Save & Test
+
 Create Dashboard in Grafana
 Go to Create → Dashboard
 Add a new panel
+
 Query example:
 node_cpu_seconds_total{mode="idle"}
 Add more panels:
