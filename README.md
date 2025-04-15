@@ -1,33 +1,24 @@
 𝐏𝐫𝐨𝐣𝐞𝐜𝐭 𝐓𝐢𝐭𝐥𝐞: 𝐈𝐧𝐭𝐫𝐨𝐝𝐮𝐜𝐢𝐧𝐠 𝐏𝐫𝐨𝐦𝐞𝐭𝐡𝐞𝐮𝐬 𝐰𝐢𝐭𝐡 𝐆𝐫𝐚𝐟𝐚𝐧𝐚: 𝐌𝐞𝐭𝐫𝐢𝐜𝐬 𝐂𝐨𝐥𝐥𝐞𝐜𝐭𝐢𝐨𝐧 𝐚𝐧𝐝 𝐌𝐨𝐧𝐢𝐭𝐨𝐫𝐢𝐧𝐠
 
  Introduction to Prometheus & Monitoring Systems
+ 
 Why Monitoring Matters
 In scalable systems, monitoring helps you:
-
 Track performance
-
 Detect issues early
-
 Trigger alerts when problems occur
 
 🔍 What is Prometheus?
 Open-source monitoring tool inspired by Google’s Borgmon
-
 Adopted by CNCF (like Kubernetes)
-
 Pull-based model: Scrapes metrics from endpoints
-
 Uses PromQL for querying
-
 Stores data in a Time Series Database (TSDB)
 
 📊 Time Series Database (TSDB)
 Stores data with timestamps — useful for:
-
 App/server metrics
-
 IoT/sensor data
-
 Market activity
 Prometheus uses XOR compression for efficient time-based analysis.
 
@@ -40,28 +31,19 @@ Prometheus uses Pull — ideal for Kubernetes & dynamic setups.
 
 🏗️ Prometheus Architecture
 Prometheus Server – Core engine
-
 Client Libraries – Instrument your apps
-
 Exporters – Get metrics from services like MySQL, HAProxy
-
 Push Gateway – For short-lived jobs
-
 AlertManager – Sends alerts (Slack, email)
-
 Grafana – Dashboards and visualization
 
 ✅ When to Use Prometheus
 Use it when:
-
 You're working with microservices or Kubernetes
-
 You need reliable, time-series metrics
-
 Avoid if:
 
 You need 100% accurate billing
-
 Logging high-frequency events
 
 🐳 Docker Setup (Minimal)
